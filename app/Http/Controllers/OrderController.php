@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller
 {
     public function esewaPay(Request $request){
-        $validatedAmount = $request->validate([
+        $validatedData = $request->validate([
+            'product_id'=>'required|exists:products,id',
             'amount'=>'required'
         ]);
-        $amount = $validatedAmount['amount'];
+        $productId = $validatedData['product_id'];
+        $amount = $validatedData['amount'];
         $transactionId = uniqid();
         $tax = 0;
         $totalAmount = $amount+$tax;
@@ -24,10 +26,13 @@ class OrderController extends Controller
         $message = "total_amount=$totalAmount,transaction_uuid=$transactionId,product_code=$productCode";
         $signature = base64_encode(hash_hmac('sha256',$message,$secretKey,true));
 
+        session(['pending_transaction_uuid'=>$transactionId]);
+
         Order::create([
             'transaction_uuid'=>$transactionId,
             'amount'=>$totalAmount,
             'product_code'=>$productCode,
+            'product_id'=>$productId,
             'status'=>'PENDING',
             'payment_method'=>'Esewa',
         ]);
@@ -45,9 +50,9 @@ class OrderController extends Controller
         ]);
     }
 
-    public function redirectPage(){
-        return view('frontend.products.esewa.redirecting');
-    }
+    // public function redirectPage(){
+    //     return view('frontend.products.esewa.redirecting');
+    // }
 
     public function esewaSuccess(Request $request){
         try{
@@ -76,14 +81,23 @@ class OrderController extends Controller
             $order = Order::where('transaction_uuid',$transactionUUID)->first();
 
             if($order){
-                $order->update([
-                    'status'=>$status,
-                    'transaction_code'=>$transactionCode
-                ]);
+                if(strtolower($status) == 'complete'){
+                    $order->update([
+                        'status'=>'COMPLETED',
+                        'reference_id'=>$transactionCode
+                    ]);
 
-                return redirect()->route('esewa.status')->with('success','Payment Successful!!!');
+                    // return redirect()->route('esewa.status')->with('success','Payment Successful!!!');
+                    return view('frontend.products.status.success');
+                }else{
+                    $order->update([
+                        'status'=>'CANCELLED',
+                        'reference_id'=>$transactionCode,
+                    ]);
+                    return redirect()->route('esewa.fail')->with('error','Payment Fail');
+                }
             }else{
-                return redirect()->route('esewa.fail')->with('error','Payment Not Found');
+                return redirect()->route('esewa.fail')->with('error','Payment Record Not Found');
             }
 
         }catch(\Exception $e){
@@ -92,11 +106,23 @@ class OrderController extends Controller
         }
     }
 
-    public function status(){
-        return view('frontend.products.esewa.status');
-    }
+    // public function status(){
+    //     return view('frontend.products.esewa.status');
+    // }
 
     public function esewaFail(){
-        return "Payment Failed or Cancelled";
+        $transactionUUID = session('pending_transaction_uuid');
+
+        if($transactionUUID){
+            $order = Order::where('transaction_uuid',$transactionUUID)->first();
+
+            if($order && $order->status == Order::STATUS_PENDING){
+                $order->update([
+                    'status'=>Order::STATUS_FAILED,
+                    'reference_id'=>null
+                ]);
+            }
+        }
+        return view('frontend.products.status.fail')->with('error','Payment Failed or was Cancelled');
     }
 }

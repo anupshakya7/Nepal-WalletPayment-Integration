@@ -39,6 +39,7 @@
                                 </a>
                                 <form id="esewa-form" action="{{route('esewa.pay')}}" method="POST" style="display:none;">
                                     @csrf
+                                    <input type="hidden" name="product_id" value="{{$product->id}}">
                                     <input type="hidden" name="amount" value="{{$product->price}}">
                                 </form>
                             </div>

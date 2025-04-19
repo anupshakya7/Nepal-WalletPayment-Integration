@@ -16,10 +16,13 @@ return new class extends Migration
             $table->string('transaction_uuid')->unique();
             $table->string('amount');
             $table->string('product_code');
+            $table->unsignedBigInteger('product_id')->nullable();
             $table->string('status')->default('PENDING');
             $table->string('reference_id')->nullable();
             $table->string('payment_method');
             $table->timestamps();
+
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('set null');
         });
     }
 
