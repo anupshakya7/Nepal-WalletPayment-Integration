@@ -27,6 +27,7 @@
                     <div class="card p-3 my-3">
                         <h2>{{ $product->name }}</h2>
                         <p>{{ $product->description }}</p>
+                        <h6>Rs. {{$product->price}}</h6>
                     </div>
                     <div class="card p-3 my-3 payment">
                         <h5>Select Payment Method</h5>
@@ -44,7 +45,7 @@
                                 </form>
                             </div>
                             <div class="col-md-3">
-                                <a href="">
+                                <a href="{{ route('khalti.pay',$product) }}">
                                     <div class="card match-height">
                                         <img src="{{ asset('products/khalti.png') }}" alt="Esewa">
                                     </div>
@@ -61,6 +62,7 @@
                                 <div class="card p-3 my-2">
                                     <h4>{{ $related->name }}</h4>
                                     <p>{{ Str::limit($related->description, 50) }}</p>
+                                    <h6>Rs. {{$related->price}}</h6>
                                 </div>
                             </a>
                         @endforeach

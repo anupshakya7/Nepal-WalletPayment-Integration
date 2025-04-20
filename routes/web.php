@@ -29,4 +29,7 @@ Route::post('/esewa-pay',[OrderController::class,'esewaPay'])->name('esewa.pay')
 Route::get('/esewa-success',[OrderController::class,'esewaSuccess'])->name('esewa.success');
 Route::get('/esewa-fail',[OrderController::class,'esewaFail'])->name('esewa.fail');
 
+Route::get('/khalti-pay/{product}',[OrderController::class,'khaltiPay'])->name('khalti.pay');
+Route::get('/khalti-pay/payment/callback',[OrderController::class,'khaltiCallBack'])->name('khalti.callback');
 
+Route::get('khalti-fail',[OrderController::class,'khaltiFail'])->name('khalti.fail');

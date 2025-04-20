@@ -48,6 +48,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{$product->name}}</h5>
                             <p class="card-text match-height">{{Str::limit($product->description,100)}}</p>
+                            <h6>Rs. {{$product->price}}</h6>
                             <a href="{{route('product.show',$product)}}" class="btn btn-primary float-end">Buy</a>
                         </div>
                     </div>

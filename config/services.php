@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'khalti' => [
+        'key' => env('KHALTI_SECRET_KEY'),
+        'base_url' => env('KHALTI_BASE_URL')
+    ],
+
 ];

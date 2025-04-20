@@ -38,7 +38,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $relateds = Product::where('status','available')->limit(4)->get();
+        $relateds = Product::where('status','available')->whereNot('id',$product->id)->limit(4)->get();
 
         return view('frontend.products.single',compact('product','relateds'));
     }
